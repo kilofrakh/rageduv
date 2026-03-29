@@ -4,27 +4,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ── LLM ──────────────────────────────────────────────────────────────────────
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-LLM_MODEL         = "openai/gpt-oss-120b"      # Groq model
+LLM_MODEL         = "openai/gpt-oss-120b"      
 
-# ── Embeddings ────────────────────────────────────────────────────────────────
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"       # local, no API key needed
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"       
 
-# ── Vector store ──────────────────────────────────────────────────────────────
-CHROMA_DIR      = "./chroma_db"            # persisted on disk
+CHROMA_DIR      = "./chroma_db"            
 COLLECTION_NAME = "course_materials"
 
-# ── Chunking ──────────────────────────────────────────────────────────────────
-CHUNK_SIZE    = 512                        # tokens per chunk
-CHUNK_OVERLAP = 64                         # overlap between chunks
+CHUNK_SIZE    = 512                        
+CHUNK_OVERLAP = 64                         
 
-# ── Retrieval ─────────────────────────────────────────────────────────────────
-TOP_K = 5                                  # number of chunks retrieved per query
+TOP_K = 5                                  
 
-# ── Analytics DB ──────────────────────────────────────────────────────────────
 ANALYTICS_DB = "sqlite:///analytics.db"
 
-# ── Upload directory ──────────────────────────────────────────────────────────
 UPLOAD_DIR = "./uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)

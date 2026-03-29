@@ -1,22 +1,3 @@
-# quiz_generator.py
-"""
-Stage 3 — Quiz Generation
---------------------------
-Given a topic, retrieves relevant course material and generates
-multiple-choice questions (MCQs) grounded in that material.
-
-Output format (JSON):
-[
-  {
-    "question": "...",
-    "options":  {"A": "...", "B": "...", "C": "...", "D": "..."},
-    "answer":   "B",
-    "source":   "lecture3.pdf",
-    "explanation": "..."
-  },
-  ...
-]
-"""
 
 import json
 import re
@@ -52,12 +33,11 @@ JSON format:
 """
 
 
-# ── Core quiz function ────────────────────────────────────────────────────────
 def generate_quiz(
     topic: str,
     num_questions: int = 5,
     subject_filter: Optional[str] = None,
-    difficulty: str = "medium",      # "easy" | "medium" | "hard"
+    difficulty: str = "medium",      
 ) -> List[dict]:
     """
     Generate MCQs on a given topic from course materials.
@@ -71,7 +51,7 @@ def generate_quiz(
     Returns:
         List of question dicts (see module docstring for schema).
     """
-    num_questions = min(num_questions, 10)  # cap to avoid token overflow
+    num_questions = min(num_questions, 10)  
     vs = get_vectorstore()
 
     # 1. Retrieve relevant material for this topic (fetch more for quiz variety)

@@ -1,17 +1,3 @@
-# api.py
-"""
-FastAPI Backend — RAGedu
-------------------------
-Endpoints:
-  POST /upload          → Ingest a document (professor)
-  POST /ask             → Student asks a question
-  POST /quiz            → Professor generates a quiz
-  GET  /dashboard       → Analytics summary
-  GET  /dashboard/topics
-  GET  /dashboard/unanswered
-  GET  /dashboard/volume
-  GET  /health
-"""
 
 import os
 import shutil
@@ -33,32 +19,26 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Allow frontend (e.g. React on localhost:3000) to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # restrict to your domain in production
+    allow_origins=["*"],   
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# ── Health check ──────────────────────────────────────────────────────────────
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 
-# ── Document upload (professor) ───────────────────────────────────────────────
 @app.post("/upload")
 async def upload_document(
     file: UploadFile = File(...),
     subject:   str = Form("General"),
     professor: str = Form("Unknown"),
 ):
-    """
-    Upload a course material file (PDF, DOCX, PPTX, TXT).
-    The file is saved locally then ingested into the vector store.
-    """
+
     allowed = {".pdf", ".docx", ".pptx", ".txt"}
     ext     = os.path.splitext(file.filename)[1].lower()
 
@@ -68,12 +48,10 @@ async def upload_document(
             detail=f"Unsupported file type '{ext}'. Allowed: {allowed}",
         )
 
-    # Save the uploaded file
     save_path = os.path.join(config.UPLOAD_DIR, file.filename)
     with open(save_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
 
-    # Ingest
     try:
         result = ingest_file(save_path, subject=subject, professor=professor)
     except Exception as e:
@@ -85,11 +63,10 @@ async def upload_document(
     }
 
 
-# ── Student Q&A ───────────────────────────────────────────────────────────────
 class AskRequest(BaseModel):
     question:       str
     subject_filter: Optional[str] = None
-    student_id:     Optional[str] = None   # anonymized ID
+    student_id:     Optional[str] = None   
 
 @app.post("/ask")
 def ask_question(body: AskRequest):
@@ -108,7 +85,6 @@ def ask_question(body: AskRequest):
     return result
 
 
-# ── Quiz generation (professor) ───────────────────────────────────────────────
 class QuizRequest(BaseModel):
     topic:          str
     num_questions:  int = 5
@@ -117,10 +93,7 @@ class QuizRequest(BaseModel):
 
 @app.post("/quiz")
 def create_quiz(body: QuizRequest):
-    """
-    Professor requests a quiz on a specific topic.
-    Returns a list of MCQs grounded in course materials.
-    """
+
     if not body.topic.strip():
         raise HTTPException(status_code=400, detail="Topic cannot be empty.")
     if body.difficulty not in ("easy", "medium", "hard"):
@@ -141,7 +114,6 @@ def create_quiz(body: QuizRequest):
     return {"topic": body.topic, "questions": questions}
 
 
-# ── Professor dashboard ───────────────────────────────────────────────────────
 @app.get("/dashboard")
 def dashboard_summary():
     """High-level stats: total questions, answer rate, top topics."""
@@ -163,7 +135,6 @@ def dashboard_volume():
     return analytics.get_volume_over_time()
 
 
-# ── Run directly ──────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
